@@ -12,10 +12,12 @@ app/src/main/java/com/xyzbroker/cashoutapp/
 │   │   ├── api/
 │   │   ├── dto/
 │   │   └── network/
+│   │       └── common/
 │   ├── mapper/
 │   └── repository/
 ├── domain/
 │   ├── model/
+│   ├── result_handlimg/
 │   ├── repository/
 │   └── usecase/
 └── presentation/
@@ -47,4 +49,8 @@ These classes are planned until their implementation is explicitly recorded in t
 
 ## Dependency injection setup
 
-Hilt and its KSP compiler are configured. CashOutApplication initializes Hilt and MainActivity is an Android entry point. Network and repository provider modules are still planned. Retrofit/OkHttp dependencies are installed; no network client or interceptors have been implemented yet.
+Hilt and its KSP compiler are configured. CashOutApplication initializes Hilt and MainActivity is an Android entry point. NetworkModule provides Retrofit, OkHttp, authorization headers, and debug logging with Authorization redaction. Repository bindings remain planned.
+
+## Domain errors
+
+CashOutError.kt defines endpoint-specific reasons in domain/result_handlimg. NetworkHandler.kt defines the sealed result hierarchy in data/remote/network/common and is independent of endpoint-specific domain reasons. Domain remains independent of data. See [error handling](ERROR_HANDLING.md) for all supplied codes, extra fields, and ambiguous submit outcomes. Error parsing and mapping in data remain pending.

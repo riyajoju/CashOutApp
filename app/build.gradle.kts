@@ -29,13 +29,13 @@ android {
             dimension = "environment"
             applicationIdSuffix = ".uat"
             versionNameSuffix = "-uat"
-            buildConfigField("String", "BASE_URL", "\"https://uat.xyzbroker.com\"")
+            buildConfigField("String", "BASE_URL", "\"http://10.0.2.2:8080/\"")
         }
         create("prod") {
             dimension = "environment"
             applicationIdSuffix = ".prod"
             versionNameSuffix = "-prod"
-            buildConfigField("String", "BASE_URL", "\"https://prod.xyzbroker.com\"")
+            buildConfigField("String", "BASE_URL", "\"http://10.0.2.2:8080/\"")
         }
     }
 

@@ -18,3 +18,34 @@
 - Created CashOutApplication with @HiltAndroidApp, registered it in the manifest, and annotated MainActivity with @AndroidEntryPoint.
 - Added INTERNET permission. Network clients, headers, logging configuration, and provider modules remain pending.
 - Validation: ./gradlew :app:assembleUatDebug :app:assembleProdDebug --console=plain passed, including KSP generation, Kotlin compilation, Hilt component generation, and APK packaging for both flavors.
+
+## 2026-10-20
+
+- Recorded the existing user-added NetworkModule with authorization interception and Authorization log redaction; left its implementation unchanged.
+- Added domain/model/CashOutException.kt: sealed HTTP, connection, unexpected, and legacy refusal exceptions, with typed business codes and extra fields.
+- Preserved HTTP status and unknown codes; modeled exact monetary extras with BigDecimal.
+- Documented all provided sandbox errors and unknown submit outcomes in ERROR_HANDLING.md. Parsing/mapping remains pending.
+- Validation: ./gradlew :app:compileUatDebugKotlin :app:compileProdDebugKotlin --console=plain passed for both flavors.
+
+### Error type placement correction
+
+- Kept endpoint-specific CashOutError in domain/model/CashOutError.kt.
+- Moved and renamed CashOutException to data/remote/network/NetworkHandler.kt, preserving its cases and fields.
+- Removed the old CashOutException.kt file and updated architecture and error documentation. Domain has no dependency on NetworkHandler.
+- Validation: :app:compileUatDebugKotlin and :app:compileProdDebugKotlin passed.
+
+### Error package organization
+
+- Moved NetworkHandler.kt into data/remote/network/common.
+- Moved CashOutError.kt into domain/result_handlimg, using the requested folder spelling.
+- Updated Kotlin packages, imports, architecture tree, and package/error documentation. Behavior is unchanged.
+- Validation: offline Kotlin compilation passed for uatDebug and prodDebug.
+
+### Generic network success
+
+- Replaced the network WithdrawalFailed case with generic Success<T>(data).
+- Made NetworkHandler<T> a sealed result rather than an Exception, so successes are returned rather than thrown.
+- Removed its CashOutError dependency; HttpError carries a raw errorCode for later domain mapping.
+- Added CashOutError.WithdrawalFailed in domain for the legacy HTTP 200 business refusal. API response mapping remains pending.
+- Updated error-handling and architecture documentation.
+- Validation: Kotlin compilation passed for uatDebug and prodDebug.
