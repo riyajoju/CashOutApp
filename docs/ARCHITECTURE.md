@@ -4,6 +4,7 @@ One Android `app` module, with four architecture packages under `com.xyzbroker.c
 
 ```text
 app/src/main/java/com/xyzbroker/cashoutapp/
+├── CashOutApplication.kt
 ├── MainActivity.kt
 ├── di/
 ├── data/
@@ -43,3 +44,7 @@ Expected states: initial loading, editable form, submitting, request received, a
 - Presentation: CashOutRoute, CashOutScreen, CashOutViewModel (including CashOutUiState), AmountInput, CashOutConfirmation.
 
 These classes are planned until their implementation is explicitly recorded in the change log.
+
+## Dependency injection setup
+
+Hilt and its KSP compiler are configured. CashOutApplication initializes Hilt and MainActivity is an Android entry point. Network and repository provider modules are still planned. Retrofit/OkHttp dependencies are installed; no network client or interceptors have been implemented yet.

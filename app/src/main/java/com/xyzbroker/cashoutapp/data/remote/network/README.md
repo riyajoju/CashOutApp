@@ -1,5 +1,5 @@
 # data/remote/network
 
-Retrofit and OkHttp configuration. Planned: NetworkClient.kt. Dependencies and networking implementation are pending.
+Retrofit, Gson converter, OkHttp, and HttpLoggingInterceptor dependencies are installed. OkHttp interceptors support request headers without another dependency.
 
-This package is scaffolding; the planned implementation has not been added yet.
+Client setup, logging configuration, and header/auth interceptors are pending. Implement them once the sandbox contract and required headers are available.

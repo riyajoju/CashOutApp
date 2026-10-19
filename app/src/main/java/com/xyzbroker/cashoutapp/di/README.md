@@ -1,5 +1,5 @@
 # di
 
-Dependency injection wiring for network clients, repositories, and use cases. Planned files: NetworkModule.kt and RepositoryModule.kt. No DI framework has been configured yet.
+Hilt is configured using KSP. CashOutApplication initializes Hilt and MainActivity is an Android entry point.
 
-This package is scaffolding; the planned implementation has not been added yet.
+Planned: NetworkModule.kt and RepositoryModule.kt to provide networking instances and repository bindings. These provider modules are not implemented yet.

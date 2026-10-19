@@ -12,6 +12,6 @@ A successful submission means the cash-out request was received and is being pro
 
 ## Current status
 
-Build configuration and architecture scaffolding are present. The starter activity still renders the template greeting. Cash-out models, networking, repository, use cases, ViewModel, and screen are planned, not implemented.
+Build configuration, architecture scaffolding, networking dependencies, and Hilt application setup are present. The starter activity still renders the template greeting. Cash-out models, networking, repository, use cases, ViewModel, and screen are planned, not implemented.
 
 Update the relevant documentation and change log whenever the project changes.

@@ -18,4 +18,21 @@ Compose and BuildConfig generation are enabled. Java source and target compatibi
 
 `buildSrc/build.gradle.kts` applies kotlin-dsl and configures Maven Central and the Gradle Plugin Portal. Gradle discovers buildSrc automatically; it is not included as an app module in settings.gradle.kts.
 
-The previous Gradle verification attempt was blocked by sandbox access to the Gradle wrapper cache. A successful Gradle sync/build has not been verified in this chat.
+Verification: ./gradlew :app:assembleUatDebug :app:assembleProdDebug --console=plain passed after the networking/Hilt setup. Both debug variants compiled and packaged successfully.
+
+## Networking and dependency injection
+
+Versions are centralized in gradle/libs.versions.toml:
+
+| Dependency | Version |
+| --- | --- |
+| Retrofit and Gson converter | 3.0.0 |
+| OkHttp and logging interceptor | 4.12.0 |
+| Hilt runtime, compiler, Gradle plugin | 2.60.1 |
+| KSP plugin | 2.3.9 |
+
+The root build declares Hilt/KSP plugins with apply false; app applies them and uses ksp for hilt-compiler. AGP built-in Kotlin remains enabled. CashOutApplication is annotated with @HiltAndroidApp and registered in the manifest; MainActivity is annotated with @AndroidEntryPoint. INTERNET permission is declared.
+
+Retrofit 3.0.0 uses OkHttp 4.12; the explicit client and logging dependencies use the same version. Gson is the selected JSON converter. Headers use OkHttp's existing interceptor API and need no separate headers dependency. Client instances, logging policies, header/auth interceptors, API contracts, and DI provider modules remain pending.
+
+References: [Retrofit release](https://github.com/square/retrofit/releases/tag/3.0.0), [Hilt setup](https://dagger.dev/hilt/gradle-setup), [Dagger KSP](https://dagger.dev/dev-guide/ksp.html).
