@@ -96,3 +96,64 @@
 - data/mapper/SubmitCashOutMapper.kt had been removed from the working tree, so the repository no longer maps problem codes for the balance; every balance failure is Result.Error(). Docs now list the submit mapper and its test as planned.
 - Validation: :app:assembleUatDebug and :app:testUatDebugUnitTest passed (CashOutApiTest 3, ExampleUnitTest 1). Reinstalled on the emulator: the sandbox logged GET /v1/accounts/100245/summary -> 200 and the screen showed Available $34,347.20.
 
+### Submit idempotency key
+
+- CashOutRepository.submitCashOut now takes an idempotencyKey parameter. Previously the key was the amount string, so two separate cash outs of the same amount within 24 hours would have replayed the first result or returned IDEMPOTENCY_KEY_REUSED.
+- The key must be a random UUID created once per customer intention by the caller (planned: CashOutViewModel) and reused on retries. Generating it inside the repository would give each retry a new key and could debit twice.
+- Known gaps, not yet changed: submitCashOut returns Result<CashOutResponseDto>, so a 200 legacy refusal (WITHDRAWAL_FAILED) counts as success and timeouts/502s count as errors although money may have moved; the domain interface imports data DTOs. Planned fix: return SubmitOutcome through a submit mapper and use domain types.
+- Validation: :app:compileUatDebugKotlin passed. No caller exists yet.
+
+### Error mapping to CashOutError
+
+- Result.Error now always carries a CashOutError (reason is no longer nullable).
+- Added CashOutError.NotSent (never reached the service) and CashOutError.NoResponse (timeout, reset, gateway page, unreadable or incomplete body), and the isSubmitOutcomeUnknown extension (NoResponse, InternalError, Unknown, WithdrawalNeedsSupport).
+- Added data/mapper/CashOutErrorMapper.kt (NetworkResult<T>.toResult and ProblemDto.toCashOutError) and data/mapper/CashOutMapper.kt (CashOutRequest.toDto with amount scale 2 and RoundingMode.UNNECESSARY; CashOutResponseDto.toCashOutResult).
+- Added domain CashOutRequest and CashOutReceipt. CashOutRepository now uses only domain types: submitCashOut(request, idempotencyKey): Result<CashOutReceipt>. getAccountBalance maps service codes too.
+- Removed domain/result_handlimg/SubmitOutcome.kt; Result plus CashOutError replaces it.
+- Fixes the gaps recorded under "Submit idempotency key": a 200 WITHDRAWAL_FAILED is now an error, and timeouts and 502s are NoResponse rather than a generic failure.
+- Validation: :app:compileUatDebugKotlin and :app:testUatDebugUnitTest passed (CashOutApiTest 3, ExampleUnitTest 1). No unit tests for the new mappers yet. Not run against the sandbox.
+
+### Cash-out form and submit
+
+- Added ValidateCashOutAmountUseCase (AmountValidation: Valid, Invalid, BelowMinimum, AboveAvailable; minimum 50.00) and SubmitCashOutUseCase.
+- CashOutViewModel now has the form: amount, beneficiary name, and IBAN, stored in SavedStateHandle. The beneficiary name field was added alongside the requested amount and IBAN fields because the API rejects a submit without it.
+- Idempotency: a random UUID per intention, stored in SavedStateHandle. Retries after an unknown outcome reuse it and resend the same request without re-validating against available. Any known outcome clears it. A key present on restore is shown as an unknown outcome.
+- Outcome states: Received (processing, not paid; reference and estimated arrival), Refused (nothing debited, including NotSent), Unknown (isSubmitOutcomeUnknown; inputs locked, Check again). WITHDRAWAL_NEEDS_SUPPORT shows the support reference with no retry. Server fieldErrors highlight the matching field.
+- CashOutScreen shows the three fields, the minimum hint, the button with a progress indicator while submitting, and the outcome messages. All customer-facing text is in strings.xml; server detail is never shown.
+- Validation: :app:assembleUatDebug and :app:testUatDebugUnitTest passed (CashOutApiTest 3, ExampleUnitTest 1). Not yet exercised on the emulator against the sandbox; no unit tests for the new ViewModel or use cases yet.
+
+### Required fields
+
+- The API is no longer called unless all three fields are filled. Amount, beneficiary name, and IBAN are checked together on submit and every missing field is shown at once. Whitespace-only counts as empty.
+- Added AmountValidation.Empty and CashOutUiState.Form.missingFields, with app-written messages: "Enter the amount you want to cash out.", "Enter the beneficiary's name.", "Enter the IBAN." Editing a field clears its message.
+- Retries after an unknown outcome skip these checks, because they resend the already-validated locked request.
+- Validation: :app:assembleUatDebug and :app:testUatDebugUnitTest passed. Not exercised on the emulator.
+
+### Repository readability
+
+- AccountMapper now exposes toAccountBalanceResult(): Result<AccountBalance>, returning Error(NoResponse) when a figure is missing, matching CashOutMapper.toCashOutResult. The nullable toAccountBalance was removed.
+- CashOutRepositoryImpl.getAccountBalance and submitCashOut now name the network response and then map it in a separate step. Behavior is unchanged.
+- Validation: :app:assembleUatDebug and :app:testUatDebugUnitTest passed.
+
+### AI conversation logs
+
+- Added ai-logs/ with the three Claude Code session transcripts for this project (JSON Lines) and ai-logs/README.md listing the tool, model, sessions, and hand-written parts.
+- The sandbox bearer token was replaced with [REDACTED] in the copies (3 occurrences in session 2, 9 in session 3); no other edits. Verified that no copy still contains the token.
+- Session 3 was copied while in progress and may need re-copying at the end of the task.
+
+
+### Codex conversation record
+
+- Added ai-logs/codex-conversation-2026-10-19-to-20.md, a clearly labeled reconstructed conversation summary covering this Codex chat and the selected network flow.
+- Updated the AI log index to distinguish the Codex summary from raw Claude JSONL exports. Existing exports were preserved.
+- Validation: checked the new Markdown record and its relative index link; no application code changed.
+
+## 2026-10-21
+
+### Major automated test coverage
+
+- Added SafeApiCallTest, CashOutMappingTest, ValidateCashOutAmountUseCaseTest, AccountBalanceTest, and CashOutViewModelTest.
+- Covered uncertain submit outcomes, cancellation, gateway errors, domain mapping, validation boundaries, exact money, repeated taps, restored idempotency, support handling, and unchanged retries.
+- Added coroutine-test dependency for deterministic ViewModel scheduling.
+- Added docs/TESTING.md with automated coverage and manual sandbox scenarios. No production behavior changed.
+- Validation: :app:testUatDebugUnitTest and :app:testProdDebugUnitTest passed. Each flavor ran 35 tests with zero failures/errors/skips (31 new tests plus 4 existing tests).

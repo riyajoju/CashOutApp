@@ -4,4 +4,38 @@
     <string name="cash_out_available">Available</string>
     <string name="cash_out_balance_error">We couldn\'t load your balance. Please try again.</string>
     <string name="cash_out_retry">Try again</string>
+
+    <string name="cash_out_amount_label">Amount</string>
+    <string name="cash_out_amount_minimum">Min %1$s</string>
+    <string name="cash_out_beneficiary_label">Beneficiary name</string>
+    <string name="cash_out_iban_label">IBAN</string>
+    <string name="cash_out_submit">Cash out</string>
+    <string name="cash_out_check_again">Check again</string>
+    <string name="cash_out_start_new">Make another cash out</string>
+
+    <string name="cash_out_amount_required">Enter the amount you want to cash out.</string>
+    <string name="cash_out_name_required">Enter the beneficiary\'s name.</string>
+    <string name="cash_out_iban_required">Enter the IBAN.</string>
+    <string name="cash_out_amount_invalid">Enter an amount like 250.00, with no more than two decimal places.</string>
+    <string name="cash_out_amount_below_minimum">The minimum cash out is %1$s.</string>
+    <string name="cash_out_amount_above_available">You can cash out up to %1$s.</string>
+    <string name="cash_out_name_invalid">Enter the beneficiary\'s full name, 2 to 70 characters.</string>
+    <string name="cash_out_iban_invalid">Check this IBAN. We couldn\'t accept it.</string>
+
+    <string name="cash_out_received_title">Request received</string>
+    <string name="cash_out_received_body">Your cash out of %1$s is being processed. It hasn\'t been paid yet.</string>
+    <string name="cash_out_received_body_no_amount">Your cash out is being processed. It hasn\'t been paid yet.</string>
+    <string name="cash_out_reference">Reference: %1$s</string>
+    <string name="cash_out_estimated_arrival">Estimated arrival: %1$s</string>
+
+    <string name="cash_out_refused_restricted">Your account can\'t make cash outs at the moment. Please contact support. No money has left your account.</string>
+    <string name="cash_out_refused_insufficient">You can cash out up to %1$s. No money has left your account.</string>
+    <string name="cash_out_refused_fields">Please check the highlighted details. No money has left your account.</string>
+    <string name="cash_out_refused_rate_limited">Too many attempts. Please wait %1$d seconds and try again. No money has left your account.</string>
+    <string name="cash_out_refused_rate_limited_no_time">Too many attempts. Please wait a moment and try again. No money has left your account.</string>
+    <string name="cash_out_not_sent">We couldn\'t reach our service, so nothing was sent. Check your connection and try again.</string>
+    <string name="cash_out_refused_generic">We couldn\'t process this cash out. No money has left your account.</string>
+    <string name="cash_out_unknown">We couldn\'t confirm your cash out. Money may have left your account. Tap Check again to find out, and please don\'t start a new cash out in the meantime.</string>
+    <string name="cash_out_needs_support">We couldn\'t confirm your cash out, and our support team needs to review it. Money may have left your account. Please contact support.</string>
+    <string name="cash_out_support_reference">Support reference: %1$s</string>
 </resources>

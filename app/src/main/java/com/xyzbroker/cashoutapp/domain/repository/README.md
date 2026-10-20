@@ -4,4 +4,4 @@ Repository interfaces consumed by use cases and implemented by data. Do not expo
 
 Implemented: CashOutRepository.kt with getAccountBalance(): Result<AccountBalance>.
 
-Planned: a submit method returning SubmitOutcome.
+Implemented: submitCashOut(request: CashOutRequest, idempotencyKey: String): Result<CashOutReceipt>.

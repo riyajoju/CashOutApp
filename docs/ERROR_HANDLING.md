@@ -1,6 +1,6 @@
 # Error handling
 
-Endpoint-specific CashOutError reasons live in domain/result_handlimg/CashOutError.kt. The generic transport result lives in data/remote/network/common:
+CashOutError reasons, including NotSent and NoResponse for failures without a usable answer, live in domain/result_handlimg/CashOutError.kt. The generic transport result lives in data/remote/network/common:
 
 | NetworkResult case | When | Submit meaning |
 | --- | --- | --- |
@@ -30,21 +30,24 @@ safeApiCall (SafeApiCall.kt) performs this classification, reads the error body 
 
 Extra monetary values use BigDecimal to preserve precision; no currency or units are inferred. Optional extra fields are nullable so an incomplete error body does not erase the original failure. Field errors default to an empty map.
 
-## Submit mapping (planned; the earlier data/mapper/SubmitCashOutMapper.kt was removed)
+## Mapping to Result and CashOutError (data/mapper)
 
-| Input | SubmitOutcome |
+Every operation returns the domain Result<T>: Success(data) or Error(reason: CashOutError). CashOutErrorMapper.kt converts transport failures for any endpoint; CashOutMapper.kt converts the submit 200 body.
+
+| Input | Result |
 | --- | --- |
-| 2xx, isSuccess true with a reference | Received(reference, amount, currency, estimatedArrival). Request is processing, not paid. An unreadable amount or date becomes null rather than hiding the receipt |
-| 2xx, isSuccess true without a reference | Unknown |
-| 2xx, isSuccess false with WITHDRAWAL_FAILED | Refused(WithdrawalFailed) |
-| 2xx, isSuccess false with any other errorCode, or isSuccess missing | Unknown (not proof that nothing moved) |
-| Problem with a known definitive code | Refused(reason, correlationId) |
-| WITHDRAWAL_NEEDS_SUPPORT | NeedsSupport(supportReference, correlationId); do not retry |
-| INTERNAL_ERROR, no problem body (gateway HTML), missing or unrecognized code | Unknown(correlationId) |
-| NoUsableResponse | Unknown |
-| NotSent | NotSent |
+| 2xx, isSuccess true with a reference | Success(CashOutReceipt). Request is processing, not paid. An unreadable amount or date becomes null rather than hiding the receipt |
+| 2xx, isSuccess false with WITHDRAWAL_FAILED | Error(WithdrawalFailed) |
+| 2xx, isSuccess false with any other errorCode | Error(Unknown(errorCode)) |
+| 2xx, isSuccess missing, or true without a reference | Error(NoResponse) |
+| HttpError with a problem body | Error(problem code mapped one to one; RATE_LIMITED prefers the Retry-After header) |
+| HttpError without a problem body (gateway HTML, empty body) | Error(NoResponse) |
+| NoUsableResponse | Error(NoResponse) |
+| NotSent | Error(NotSent) |
 
-Replayed successes map the same as first-time ones. SubmitCashOutMapperTest was removed with the mapper.
+CashOutError.isSubmitOutcomeUnknown is true for NoResponse, InternalError, Unknown, and WithdrawalNeedsSupport. After a submit, these mean money may have moved: keep the idempotency key, never report them as paid or failed, and do not retry WithdrawalNeedsSupport. Replayed successes map the same as first-time ones.
+
+The earlier SubmitOutcome type was removed in favor of Result plus these CashOutError cases. correlationId is not carried into the domain yet.
 
 ## Mapping contract
 
@@ -56,7 +59,7 @@ Replayed successes map the same as first-time ones. SubmitCashOutMapperTest was 
 - NotSent means the request never reached the server. The mapper may report it as not sent, or conservatively as unknown; retrying with the same key is safe either way.
 - OkHttp's retryOnConnectionFailure may resend a request automatically. This is safe because it reuses the same Request, including its Idempotency-Key.
 
-Implemented: NetworkResult, ProblemDto, safeApiCall, CashOutApi, the summary, request, and response DTOs, and SubmitOutcome. Pending: the submit mapper, retry/idempotency-key handling, UI handling, and unit tests for safeApiCall and the mapper (both test files were removed).
+Implemented: NetworkResult, ProblemDto, safeApiCall, CashOutApi, the summary, request, and response DTOs, CashOutErrorMapper, CashOutMapper, and repository submit. Pending: idempotency-key handling in the ViewModel, UI handling, and unit tests for safeApiCall and the mapper (both test files were removed).
 
 ## Sandbox behavior observed in the mock server source
 

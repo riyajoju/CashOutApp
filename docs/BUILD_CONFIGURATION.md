@@ -46,3 +46,7 @@ Cleartext HTTP is not enabled in the main manifest. The uat source set adds a ne
 okhttp mockwebserver 4.12.0 (matching OkHttp) is a test-only dependency.
 
 Verification: :app:assembleUatDebug and :app:assembleProdDebug passed. The merged uatDebug manifest references the network security config; the prodDebug manifest has no cleartext setting.
+
+## Coroutine unit testing
+
+Added kotlinx-coroutines-test 1.10.2 through the version catalog for deterministic ViewModel tests with a controlled Main dispatcher.

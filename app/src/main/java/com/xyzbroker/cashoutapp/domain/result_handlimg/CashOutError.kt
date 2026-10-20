@@ -2,7 +2,10 @@ package com.xyzbroker.cashoutapp.domain.result_handlimg
 
 import java.math.BigDecimal
 
-/** Business reason carried by an HTTP failure, independent of its status code. */
+/**
+ * Why an operation failed. Service codes map one to one; NotSent and NoResponse cover failures where
+ * the service gave no usable answer. code is the service code, or null when there is none.
+ */
 sealed class CashOutError(val code: String?) {
     /** Legacy HTTP 200 refusal; no money was debited. */
     data object WithdrawalFailed : CashOutError("WITHDRAWAL_FAILED")
@@ -43,4 +46,22 @@ sealed class CashOutError(val code: String?) {
 
     /** Missing/unrecognized code, including an empty or unparseable error body. */
     data class Unknown(val rawCode: String? = null) : CashOutError(rawCode)
+
+    /** The request never reached the service (connection refused, unknown host). Nothing was debited. */
+    data object NotSent : CashOutError(null)
+
+    /** No usable answer: timeout, connection reset, gateway page, or an unreadable or incomplete body. */
+    data object NoResponse : CashOutError(null)
 }
+
+/**
+ * True when, after a submit, the app cannot tell whether money moved. Keep the idempotency key and
+ * retry with it; never report these as paid or as failed.
+ */
+val CashOutError.isSubmitOutcomeUnknown: Boolean
+    get() = when (this) {
+        CashOutError.NoResponse, CashOutError.InternalError, is CashOutError.Unknown,
+        is CashOutError.WithdrawalNeedsSupport -> true
+
+        else -> false
+    }

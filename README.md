@@ -10,6 +10,7 @@ A successful submission means the cash-out request was received and is being pro
 - [Build configuration](docs/BUILD_CONFIGURATION.md)
 - [Domain error handling](docs/ERROR_HANDLING.md)
 - [Change log](docs/CHANGELOG.md)
+- [AI conversation history and tools](ai-logs/README.md)
 
 ## Running against the sandbox
 
@@ -21,6 +22,10 @@ A successful submission means the cash-out request was received and is being pro
 
 ## Current status
 
-Build configuration, architecture scaffolding, networking dependencies, and Hilt application setup are present. Hilt networking providers and authorization header redaction are present. Domain error reasons, the NetworkResult transport type, ProblemDto, and safeApiCall classification (with unit tests) are implemented. CashOutApi, the summary and submit DTOs, and the submit outcome mapper are implemented. The app loads the account summary from the sandbox and shows the available amount. The form, submit flow, and amount validation remain planned.
+Build configuration, architecture scaffolding, networking dependencies, and Hilt application setup are present. Hilt networking providers and authorization header redaction are present. Domain error reasons, the NetworkResult transport type, ProblemDto, and safeApiCall classification (with unit tests) are implemented. CashOutApi, the summary and submit DTOs, and the submit outcome mapper are implemented. The app loads the account summary, validates the amount on the device, submits with one idempotency key per intention, and shows an app-written message for every outcome. Unit tests for the mappers, validation, and retry behavior are planned.
 
 Update the relevant documentation and change log whenever the project changes.
+
+## Tests
+
+See [major automated and manual test cases](docs/TESTING.md).
