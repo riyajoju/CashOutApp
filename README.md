@@ -29,3 +29,5 @@ Update the relevant documentation and change log whenever the project changes.
 ## Tests
 
 See [major automated and manual test cases](docs/TESTING.md).
+
+See [app icon resources and design](docs/APP_ICON.md).

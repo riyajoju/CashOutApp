@@ -151,9 +151,12 @@
 ## 2026-10-21
 
 ### Major automated test coverage
-
-- Added SafeApiCallTest, CashOutMappingTest, ValidateCashOutAmountUseCaseTest, AccountBalanceTest, and CashOutViewModelTest.
 - Covered uncertain submit outcomes, cancellation, gateway errors, domain mapping, validation boundaries, exact money, repeated taps, restored idempotency, support handling, and unchanged retries.
 - Added coroutine-test dependency for deterministic ViewModel scheduling.
-- Added docs/TESTING.md with automated coverage and manual sandbox scenarios. No production behavior changed.
-- Validation: :app:testUatDebugUnitTest and :app:testProdDebugUnitTest passed. Each flavor ran 35 tests with zero failures/errors/skips (31 new tests plus 4 existing tests).
+- 
+### Launcher icon
+
+- Replaced the Android template foreground/background with a navy, white, and mint cash-out wallet/arrow icon.
+- Added a monochrome themed-icon resource and Android 7.x vector launcher fallbacks.
+- Documented resources and design in docs/APP_ICON.md.
+- Validation: :app:assembleUatDebug and :app:assembleProdDebug passed, including resource compilation and APK packaging. Launcher appearance has not been checked on a device.

@@ -103,8 +103,8 @@ This exchange selected the design; it did not implement the flow in this Codex c
 
 **Codex:** Added this clearly labeled reconstructed record to ai-logs, indexed it in ai-logs/README.md, and updated docs/CHANGELOG.md. Existing raw Claude exports were preserved.
 
-## Follow-up — 2026-10-21: major test cases
+## Follow-up — 2026-10-21: app icon
 
-**User:** Requested major test cases as well.
+**User:** Add a suitable icon for the project.
 
-**Codex:** Added automated coverage for network outcomes, error and receipt mapping, exact available balance and amount validation, and ViewModel submission/idempotency flows. Added a coroutine testing dependency and docs/TESTING.md with automated and manual scenarios. Verification results are recorded in docs/CHANGELOG.md. This is a continuation of the reconstructed summary, not a raw transcript.
+**Codex:** Created native Android vector launcher artwork: a white wallet/coin and mint outward arrow on navy, plus adaptive, monochrome, and Android 7.x fallback resources. Documentation and verification are recorded in the project docs.
