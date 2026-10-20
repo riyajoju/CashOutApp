@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">CashOutApp</string>
+    <string name="cash_out_title">Cash out</string>
+    <string name="cash_out_available">Available</string>
+    <string name="cash_out_balance_error">We couldn\'t load your balance. Please try again.</string>
+    <string name="cash_out_retry">Try again</string>
 </resources>

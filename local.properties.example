@@ -1,0 +1,4 @@
+# Copy these entries into local.properties (git-ignored). Never commit real values.
+sdk.dir=[ANDROID_SDK_PATH]
+# Sandbox bearer token from API.md
+sandbox.apiToken=[SANDBOX_API_TOKEN]

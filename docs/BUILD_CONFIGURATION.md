@@ -6,13 +6,13 @@
 | --- | --- |
 | Version code | 1 |
 | Version name | 1.0.0 |
-| Minimum SDK | 24 |
+| Minimum SDK | 26 |
 | Target SDK | 36 |
 | Compile SDK | 37 |
 
 No maximum SDK restriction is configured. Target SDK and maximum SDK are different settings.
 
-The environment dimension currently defines `uat` and `prod` flavors, with matching application ID/version suffixes and BASE_URL BuildConfig fields. The current UAT name differs from the initially discussed SIT name; it has been preserved as configured. URLs remain the configured xyzbroker.com values pending sandbox integration.
+The environment dimension currently defines `uat` and `prod` flavors, with matching application ID/version suffixes and BASE_URL BuildConfig fields. The current UAT name differs from the initially discussed SIT name; it has been preserved as configured. uat points at the sandbox (http://10.0.2.2:8080/). prod uses the placeholder https://api.example.com/, because production is HTTPS only.
 
 Compose and BuildConfig generation are enabled. Java source and target compatibility are 17. Debug coverage is enabled; release minification and resource shrinking are enabled.
 
@@ -36,3 +36,13 @@ The root build declares Hilt/KSP plugins with apply false; app applies them and 
 Retrofit 3.0.0 uses OkHttp 4.12; the explicit client and logging dependencies use the same version. Gson is the selected JSON converter. Headers use OkHttp's existing interceptor API and need no separate headers dependency. Client instances, logging policies, header/auth interceptors, API contracts, and DI provider modules remain pending.
 
 References: [Retrofit release](https://github.com/square/retrofit/releases/tag/3.0.0), [Hilt setup](https://dagger.dev/hilt/gradle-setup), [Dagger KSP](https://dagger.dev/dev-guide/ksp.html).
+
+## Sandbox token and cleartext
+
+The bearer token is not in source. app/build.gradle.kts reads `sandbox.apiToken` from the git-ignored local.properties, falling back to the `SANDBOX_API_TOKEN` environment variable, and exposes it as `BuildConfig.API_TOKEN`. local.properties.example shows the expected keys with placeholders. Without a token the app still builds, but every request gets 401 UNAUTHENTICATED. The token is compiled into the APK, which is acceptable for the sandbox only; production would use real login.
+
+Cleartext HTTP is not enabled in the main manifest. The uat source set adds a network security config (app/src/uat/res/xml/network_security_config.xml) that permits cleartext only for 10.0.2.2 and localhost. prod permits no cleartext.
+
+okhttp mockwebserver 4.12.0 (matching OkHttp) is a test-only dependency.
+
+Verification: :app:assembleUatDebug and :app:assembleProdDebug passed. The merged uatDebug manifest references the network security config; the prodDebug manifest has no cleartext setting.

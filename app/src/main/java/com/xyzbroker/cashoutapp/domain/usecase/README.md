@@ -1,5 +1,7 @@
 # domain/usecase
 
-Business operations. Planned: GetCashOutDetailsUseCase.kt, ValidateCashOutAmountUseCase.kt, and SubmitCashOutUseCase.kt. The service remains authoritative for withdrawal eligibility.
+Business operations. The service remains authoritative for withdrawal eligibility.
 
-This package is scaffolding; the planned implementation has not been added yet.
+Implemented: GetCashOutDetailsUseCase.kt (loads the account balance).
+
+Planned: ValidateCashOutAmountUseCase.kt and SubmitCashOutUseCase.kt.

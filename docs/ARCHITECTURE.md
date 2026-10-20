@@ -40,17 +40,17 @@ Expected states: initial loading, editable form, submitting, request received, a
 
 ## Planned classes
 
-- DI: NetworkModule, RepositoryModule.
-- Data: CashOutApi, NetworkClient, request/response DTOs, CashOutMapper, CashOutRepositoryImpl.
-- Domain: AccountBalance, Money, CashOutRequest, CashOutRepository, GetCashOutDetailsUseCase, ValidateCashOutAmountUseCase, SubmitCashOutUseCase.
-- Presentation: CashOutRoute, CashOutScreen, CashOutViewModel (including CashOutUiState), AmountInput, CashOutConfirmation.
+- DI: NetworkModule and RepositoryModule (implemented).
+- Data: CashOutApi (implemented), request/response DTOs (ProblemDto, AccountResponseDto, CashOutRequestDto, and CashOutResponseDto implemented), mappers (AccountMapper implemented; submit and request mapping planned), CashOutRepositoryImpl (balance implemented; submit planned).
+- Domain: Result, SubmitOutcome, CashOutError, AccountBalance, CashOutRepository, and GetCashOutDetailsUseCase (implemented); Money, CashOutRequest, ValidateCashOutAmountUseCase, and SubmitCashOutUseCase (planned).
+- Presentation: CashOutRoute and CashOutScreen (in CashOutScreen.kt) and CashOutViewModel with CashOutUiState (implemented, balance only); AmountInput and CashOutConfirmation (planned).
 
 These classes are planned until their implementation is explicitly recorded in the change log.
 
 ## Dependency injection setup
 
-Hilt and its KSP compiler are configured. CashOutApplication initializes Hilt and MainActivity is an Android entry point. NetworkModule provides Retrofit, OkHttp, authorization headers, and debug logging with Authorization redaction. Repository bindings remain planned.
+Hilt and its KSP compiler are configured. CashOutApplication initializes Hilt and MainActivity is an Android entry point. NetworkModule provides Retrofit, OkHttp, the Authorization header (token from BuildConfig.API_TOKEN), debug logging with Authorization redaction, and CashOutApi. Repository bindings remain planned.
 
 ## Domain errors
 
-CashOutError.kt defines endpoint-specific reasons in domain/result_handlimg. NetworkHandler.kt defines the sealed result hierarchy in data/remote/network/common and is independent of endpoint-specific domain reasons. Domain remains independent of data. See [error handling](ERROR_HANDLING.md) for all supplied codes, extra fields, and ambiguous submit outcomes. Error parsing and mapping in data remain pending.
+CashOutError.kt defines endpoint-specific reasons in domain/result_handlimg. NetworkResult.kt defines the sealed transport result in data/remote/network/common, and SafeApiCall.kt classifies Retrofit calls into it. ProblemDto.kt in data/remote/dto holds the parsed error body. None of these depend on CashOutError, and domain does not depend on them. See [error handling](ERROR_HANDLING.md) for all supplied codes, extra fields, and ambiguous submit outcomes. data/mapper/AccountMapper.kt maps the summary. Mapping a submit NetworkResult to SubmitOutcome remains pending (an earlier SubmitCashOutMapper.kt was removed). Operations that only succeed or fail return the generic domain Result<T>; submit uses SubmitOutcome because its outcome can be unknown.

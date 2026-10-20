@@ -1,7 +1,5 @@
 # data/remote/network
 
-Retrofit, Gson converter, OkHttp, and HttpLoggingInterceptor dependencies are installed. OkHttp interceptors support request headers without another dependency.
+Retrofit, Gson converter, OkHttp, and HttpLoggingInterceptor dependencies are installed. di/NetworkModule.kt provides the OkHttp client (authorization interceptor, Authorization log redaction, 30 s timeouts) and Retrofit.
 
-Client setup, logging configuration, and header/auth interceptors are pending. Implement them once the sandbox contract and required headers are available.
-
-common/NetworkHandler.kt defines the sealed HttpError, ConnectionError, UnexpectedError, and Success cases. HTTP failures preserve a raw errorCode; endpoint-specific reasons remain in domain/result_handlimg. Exception mapping remains pending.
+common/NetworkResult.kt and common/SafeApiCall.kt implement the generic transport result and its classification. Endpoint-specific reasons live in domain/result_handlimg and are mapped in data/mapper (pending).

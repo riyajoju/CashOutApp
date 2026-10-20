@@ -2,6 +2,7 @@ package com.xyzbroker.cashoutapp.di
 
 import com.xyzbroker.cashoutapp.BuildConfig
 import com.xyzbroker.cashoutapp.BuildConfig.BASE_URL
+import com.xyzbroker.cashoutapp.data.remote.api.CashOutApi
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -38,7 +39,7 @@ object NetworkModule {
         return OkHttpClient.Builder()
             .addInterceptor { chain ->
                 val request = chain.request().newBuilder()
-                    .addHeader("Authorization", "Bearer sandbox-6b1f0e52-candidate")
+                    .addHeader("Authorization", "Bearer ${BuildConfig.API_TOKEN}")
                     .build()
                 chain.proceed(request)
             }
@@ -58,4 +59,8 @@ object NetworkModule {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
+
+    @Provides
+    @Singleton
+    fun provideCashOutApi(retrofit: Retrofit): CashOutApi = retrofit.create(CashOutApi::class.java)
 }
