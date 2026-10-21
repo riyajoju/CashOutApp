@@ -15,6 +15,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.Assert.*
 import java.math.BigDecimal
+import java.time.LocalDate
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class CashOutViewModelTest {
@@ -114,6 +115,26 @@ class CashOutViewModelTest {
         repository.balanceError = false
         vm.loadBalance(); runCurrent()
         assertTrue(vm.uiState.value is CashOutUiState.Form)
+    }
+    @Test fun receipt_survivesProcessDeath_andCannotBeResubmitted() = runTest(dispatcher) {
+        val handle = SavedStateHandle()
+        val first = viewModel(handle); runCurrent(); first.fill()
+        repository.outcome = Result.Success(
+            CashOutReceipt("CO-1", BigDecimal("250.00"), "USD", LocalDate.of(2026, 10, 23)))
+        first.onSubmit(); runCurrent()
+
+        // Process death: Android creates a new ViewModel with the same saved state.
+        val restored = viewModel(handle); runCurrent()
+
+        val status = restored.form().submitStatus as SubmitStatus.Received
+        assertEquals(CashOutReceipt("CO-1", BigDecimal("250.00"), "USD", LocalDate.of(2026, 10, 23)), status.receipt)
+        assertFalse(restored.form().canSubmit)
+        restored.onSubmit(); runCurrent()
+        assertEquals(1, repository.calls.size)
+
+        restored.onStartNew(); runCurrent()
+        assertNull(restored.form().submitStatus)
+        assertNull(viewModel(handle).also { runCurrent() }.form().submitStatus)
     }
     private class FakeRepository : CashOutRepository {
         var balance = AccountBalance("USD",BigDecimal("1250.50"),BigDecimal("2000.00"),BigDecimal("1500.00"))

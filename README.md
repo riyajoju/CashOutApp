@@ -6,6 +6,7 @@ A successful submission means the cash-out request was received and is being pro
 
 ## Documentation
 
+- [Submission notes: assumptions, open decisions, next steps](NOTES.md)
 - [Architecture and project structure](docs/ARCHITECTURE.md)
 - [Build configuration](docs/BUILD_CONFIGURATION.md)
 - [Domain error handling](docs/ERROR_HANDLING.md)

@@ -160,3 +160,17 @@
 - Added a monochrome themed-icon resource and Android 7.x vector launcher fallbacks.
 - Documented resources and design in docs/APP_ICON.md.
 - Validation: :app:assembleUatDebug and :app:assembleProdDebug passed, including resource compilation and APK packaging. Launcher appearance has not been checked on a device.
+
+## 2026-10-21
+
+### Receipt survives process death
+
+- Fixed a possible double debit: after a successful submit, the form values stayed in SavedStateHandle but the receipt did not. After process death the customer saw a filled form with an active Cash out button, and submitting again used a new idempotency key, so the service would debit again.
+- CashOutViewModel now saves the receipt (reference, amount via toPlainString, currency, estimated arrival as ISO date) in SavedStateHandle before clearing the key, and restores SubmitStatus.Received from it in loadBalance, ahead of the unknown-outcome check. onStartNew clears the receipt keys.
+- Added CashOutViewModelTest.receipt_survivesProcessDeath_andCannotBeResubmitted: a new ViewModel on the same SavedStateHandle shows the identical receipt, cannot submit, makes no second repository call, and starts empty after Make another cash out.
+- Validation: :app:testUatDebugUnitTest passed (CashOutViewModelTest 10 tests, all suites passing) and :app:assembleDebug passed. Not yet checked on the emulator with adb shell am kill.
+
+### Submission notes draft
+
+- Added NOTES.md: how to run, assumptions, the decision least sure of (placeholder with two suggestions), next steps, sandbox differences from API.md, the token history, time spent (placeholder), and AI tools. Linked from README.md.
+

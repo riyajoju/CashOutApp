@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import java.util.UUID
 import javax.inject.Inject
 
@@ -89,7 +90,9 @@ class CashOutViewModel @Inject constructor(
                     amount = savedStateHandle[KEY_AMOUNT] ?: "",
                     beneficiaryName = savedStateHandle[KEY_NAME] ?: "",
                     iban = savedStateHandle[KEY_IBAN] ?: "",
-                    submitStatus = idempotencyKey?.let { SubmitStatus.Unknown(CashOutError.NoResponse) },
+                    // A saved receipt means the request finished; a leftover key means its outcome is still unknown.
+                    submitStatus = restoredReceipt()?.let { SubmitStatus.Received(it) }
+                        ?: idempotencyKey?.let { SubmitStatus.Unknown(CashOutError.NoResponse) },
                 )
 
                 is Result.Error -> CashOutUiState.BalanceError
@@ -154,6 +157,9 @@ class CashOutViewModel @Inject constructor(
                     if (result.reason.isSubmitOutcomeUnknown) SubmitStatus.Unknown(result.reason)
                     else SubmitStatus.Refused(result.reason)
             }
+            // Save the receipt before dropping the key, so a restore after process death shows it instead of
+            // a form that invites a second, newly keyed debit.
+            if (status is SubmitStatus.Received) saveReceipt(status.receipt)
             // A known outcome ends this intention; the next submit is a new request with a new key.
             if (status !is SubmitStatus.Unknown) idempotencyKey = null
 
@@ -171,9 +177,27 @@ class CashOutViewModel @Inject constructor(
 
     //After a received request: clear the form and show the updated available amount.
     fun onStartNew() {
-        listOf(KEY_AMOUNT, KEY_NAME, KEY_IBAN).forEach { savedStateHandle.remove<String>(it) }
+        (listOf(KEY_AMOUNT, KEY_NAME, KEY_IBAN) + RECEIPT_KEYS).forEach { savedStateHandle.remove<String>(it) }
         idempotencyKey = null
         loadBalance()
+    }
+
+    // Saved as plain strings; toPlainString keeps the amount exact (never exponent form).
+    private fun saveReceipt(receipt: CashOutReceipt) {
+        savedStateHandle[KEY_RECEIPT_REFERENCE] = receipt.reference
+        savedStateHandle[KEY_RECEIPT_AMOUNT] = receipt.amount?.toPlainString()
+        savedStateHandle[KEY_RECEIPT_CURRENCY] = receipt.currency
+        savedStateHandle[KEY_RECEIPT_ARRIVAL] = receipt.estimatedArrival?.toString()
+    }
+
+    private fun restoredReceipt(): CashOutReceipt? {
+        val reference: String = savedStateHandle[KEY_RECEIPT_REFERENCE] ?: return null
+        return CashOutReceipt(
+            reference = reference,
+            amount = savedStateHandle.get<String>(KEY_RECEIPT_AMOUNT)?.toBigDecimal(),
+            currency = savedStateHandle[KEY_RECEIPT_CURRENCY],
+            estimatedArrival = savedStateHandle.get<String>(KEY_RECEIPT_ARRIVAL)?.let(LocalDate::parse),
+        )
     }
 
     private fun editForm(
@@ -192,5 +216,10 @@ class CashOutViewModel @Inject constructor(
         const val KEY_AMOUNT = "amount"
         const val KEY_NAME = "beneficiaryName"
         const val KEY_IBAN = "iban"
+        const val KEY_RECEIPT_REFERENCE = "receiptReference"
+        const val KEY_RECEIPT_AMOUNT = "receiptAmount"
+        const val KEY_RECEIPT_CURRENCY = "receiptCurrency"
+        const val KEY_RECEIPT_ARRIVAL = "receiptEstimatedArrival"
+        val RECEIPT_KEYS = listOf(KEY_RECEIPT_REFERENCE, KEY_RECEIPT_AMOUNT, KEY_RECEIPT_CURRENCY, KEY_RECEIPT_ARRIVAL)
     }
 }

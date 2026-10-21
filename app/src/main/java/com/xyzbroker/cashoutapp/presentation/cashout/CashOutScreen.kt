@@ -269,7 +269,7 @@ private fun amountErrorText(error: AmountValidation?, currency: String): String?
     is AmountValidation.Valid, null -> null
 }
 
-/** Every refusal here means nothing was debited; the wording is the app's own, never the server's detail. */
+// Every refusal here means nothing was debited; the wording is the app's own, never the server's detail.
 @Composable
 private fun refusedText(reason: CashOutError, currency: String): String = when (reason) {
     CashOutError.AccountRestricted -> stringResource(R.string.cash_out_refused_restricted)

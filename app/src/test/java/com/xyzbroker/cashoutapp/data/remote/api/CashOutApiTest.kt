@@ -16,7 +16,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.math.BigDecimal
 
-/** Checks the exact requests the app puts on the wire, using the production OkHttp client. */
+// Checks the exact requests the app puts on the wire, using the production OkHttp client.
 class CashOutApiTest {
 
     private val server = MockWebServer()
@@ -66,7 +66,10 @@ class CashOutApiTest {
 
         api.submitCashOut("100245", "key-2", request("10000000.00"))
 
-        assertEquals(true, server.takeRequest().body.readUtf8().startsWith("""{"amount":10000000.00,"""))
+        assertEquals(
+            true,
+            server.takeRequest().body.readUtf8().startsWith("""{"amount":10000000.00,""")
+        )
     }
 
     @Test
@@ -74,7 +77,7 @@ class CashOutApiTest {
         server.enqueue(
             MockResponse().setBody(
                 """{"accountNumber":"100245","currency":"USD","status":"active","balance":34412.6500,""" +
-                    """"equity":36120.5512,"freeMargin":34347.2000,"version":1000}""",
+                        """"equity":36120.5512,"freeMargin":34347.2000,"version":1000}""",
             ),
         )
 
